@@ -10,9 +10,9 @@ export interface IUser extends Document {
   password: string;
   cep: string;
   qualified: string;
-  patio: string;
-  complement: string;
-  neighborhood: string;
+  patio: string | null;
+  complement: string | null;
+  neighborhood: string | null;
   locality: string;
   uf: string;
 }

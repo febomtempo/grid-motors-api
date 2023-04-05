@@ -62,3 +62,31 @@ export async function findUserById(
     });
   }
 }
+
+export async function deleteUserById(
+  req: Request,
+  res: Response
+): Promise<Response> {
+  try {
+    const { id } = req.params;
+    if (!isObjectIdOrHexString(id)) {
+      return res.status(400).json({
+        status: 'fail',
+        message: 'Invalid ID',
+      });
+    }
+    const user = await User.findByIdAndDelete(id);
+    if (!user) {
+      return res.status(404).json({
+        status: 'fail',
+        message: 'User ID not found',
+      });
+    }
+    return res.status(204).json(null);
+  } catch (err) {
+    return res.status(400).json({
+      status: 'fail',
+      message: 'something went wrong',
+    });
+  }
+}

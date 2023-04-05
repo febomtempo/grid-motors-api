@@ -35,6 +35,21 @@ export async function createUser(
   }
 }
 
+export async function findAllUsers(
+  req: Request,
+  res: Response
+): Promise<Response> {
+  try {
+    const user = await User.find().select('-__v');
+    return res.status(200).json(user);
+  } catch (err) {
+    return res.status(400).json({
+      status: 'fail',
+      message: 'something went wrong',
+    });
+  }
+}
+
 export async function findUserById(
   req: Request,
   res: Response

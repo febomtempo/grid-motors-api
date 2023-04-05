@@ -1,6 +1,7 @@
 import User, { IUser } from './UserModel';
 import { Request, Response } from 'express';
 import { checkCepData, getCepData } from './UserService';
+import { isObjectIdOrHexString } from 'mongoose';
 
 export async function createUser(
   req: Request,
@@ -30,6 +31,34 @@ export async function createUser(
     return res.status(400).json({
       status: 'fail',
       message: err,
+    });
+  }
+}
+
+export async function findUserById(
+  req: Request,
+  res: Response
+): Promise<Response> {
+  try {
+    const { id } = req.params;
+    if (!isObjectIdOrHexString(id)) {
+      return res.status(400).json({
+        status: 'fail',
+        message: 'Invalid ID',
+      });
+    }
+    const user = await User.findById(id).select('-__v');
+    if (!user) {
+      return res.status(404).json({
+        status: 'fail',
+        message: 'User ID not found',
+      });
+    }
+    return res.status(200).json(user);
+  } catch (err) {
+    return res.status(400).json({
+      status: 'fail',
+      message: 'something went wrong',
     });
   }
 }

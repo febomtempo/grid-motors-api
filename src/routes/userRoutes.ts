@@ -6,12 +6,13 @@ import {
   findUserById,
   updateUserById,
 } from '../user/UserController';
+import { protect } from '../auth/AuthController';
 
 const userRoutes: Router = express.Router();
 userRoutes.post('/', createUser);
-userRoutes.get('/', findAllUsers);
-userRoutes.get('/:id', findUserById);
-userRoutes.delete('/:id', deleteUserById);
-userRoutes.put('/:id', updateUserById);
+userRoutes.get('/', protect, findAllUsers);
+userRoutes.get('/:id', protect, findUserById);
+userRoutes.delete('/:id', protect, deleteUserById);
+userRoutes.put('/:id', protect, updateUserById);
 
 export default userRoutes;

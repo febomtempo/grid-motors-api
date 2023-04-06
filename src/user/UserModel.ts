@@ -15,6 +15,7 @@ export interface IUser extends Document {
   neighborhood: string | null;
   locality: string;
   uf: string;
+  correctPassword(candidatePassword: string): Promise<boolean>;
 }
 
 const userSchema: Schema = new Schema<IUser>({
@@ -120,6 +121,12 @@ userSchema.pre('save', async function (this: IUser, next) {
   this.password = await bcrypt.hash(this.password, 12);
   next();
 });
+
+userSchema.methods.correctPassword = async function (
+  candidatePassword: string
+) {
+  return await bcrypt.compare(candidatePassword, this.password);
+};
 
 const User = model<IUser>('User', userSchema);
 

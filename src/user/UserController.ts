@@ -105,3 +105,39 @@ export async function deleteUserById(
     });
   }
 }
+
+export async function updateUserById(
+  req: Request,
+  res: Response
+): Promise<Response> {
+  try {
+    const { id } = req.params;
+    const updateUser: IUser = req.body;
+    if (!isObjectIdOrHexString(id)) {
+      return res.status(400).json({
+        status: 'fail',
+        message: 'Invalid ID',
+      });
+    }
+    const user = await User.findByIdAndUpdate(id, updateUser, {
+      new: true,
+      runValidators: true,
+    });
+    if (!user) {
+      return res.status(404).json({
+        status: 'fail',
+        message: 'User ID not found',
+      });
+    }
+    return res.status(200).json({
+      status: 'success',
+      message: 'user updated',
+      user,
+    });
+  } catch (err) {
+    return res.status(400).json({
+      status: 'fail',
+      message: err,
+    });
+  }
+}

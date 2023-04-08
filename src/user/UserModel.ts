@@ -1,4 +1,4 @@
-import { Schema, model, Document } from 'mongoose';
+import { Schema, model, Document, Query, CallbackError } from 'mongoose';
 import validator from 'validator';
 import bcrypt from 'bcrypt';
 
@@ -18,20 +18,36 @@ export interface IUser extends Document {
   correctPassword(candidatePassword: string): Promise<boolean>;
 }
 
+interface IUserQuery extends Query<IUser, IUser> {
+  _update: {
+    password?: string;
+  };
+}
+
 const userSchema: Schema = new Schema<IUser>({
   name: {
     type: String,
     required: [true, 'A user must have a name'],
     trim: true,
-    minlength: [4, 'A user name must have more or equal then 4 characters'],
+    minlength: [2, 'A user name must have more or equal then 2 characters'],
     maxlength: [40, 'A user name must have less or equal then 40 characters'],
   },
   cpf: {
     type: String,
     required: [true, 'A user must have a cpf'],
+    unique: true,
     trim: true,
-    minlength: [4, 'A user cpf must be equal to 11 characters'],
-    maxlength: [11, 'A user cpf must be equal to 11 characters'],
+    minlength: [14, 'A user cpf must be equal to 14 characters'],
+    maxlength: [14, 'A user cpf must be equal to 14 characters'],
+    validate: [
+      {
+        validator: async function (cpf: string) {
+          const user = await User.findOne({ cpf });
+          return !user;
+        },
+        message: 'This cpf is already in use',
+      },
+    ],
   },
   birth: {
     type: Date,
@@ -81,36 +97,44 @@ const userSchema: Schema = new Schema<IUser>({
     type: String,
     required: [true, 'Qualified field is required'],
     trim: true,
-    minlength: [3, 'This field can only be sim or nao'],
-    maxlength: [3, 'This field can only be sim or nao'],
+    minlength: [3, `This field can only be 'sim' or 'não'`],
+    maxlength: [3, `This field can only be 'sim' or 'não'`],
   },
   patio: {
     type: String,
     trim: true,
+    required: true,
     minlength: [2, 'A patio must have more or equal then 2 characters'],
     maxlength: [40, 'A patio must have less or equal then 40 characters'],
   },
   complement: {
     type: String,
     trim: true,
-    minlength: [2, 'A patio must have more or equal then 2 characters'],
+    required: true,
+    minlength: [2, 'A complement must have more or equal then 2 characters'],
     maxlength: [40, 'A complement must have less or equal then 40 characters'],
   },
   neighborhood: {
     type: String,
     trim: true,
-    minlength: [2, 'A patio must have more or equal then 2 characters'],
-    maxlength: [40, 'A patio must have less or equal then 40 characters'],
+    required: true,
+    minlength: [2, 'A neighborhood must have more or equal then 2 characters'],
+    maxlength: [
+      40,
+      'A neighborhood must have less or equal then 40 characters',
+    ],
   },
   locality: {
     type: String,
     trim: true,
+    required: true,
     minlength: [2, 'A locality must have more or equal then 2 characters'],
     maxlength: [40, 'A locality must have less or equal then 40 characters'],
   },
   uf: {
     type: String,
     trim: true,
+    required: true,
     minlength: [2, 'A locality must be equal to 2 characters'],
     maxlength: [2, 'A locality must be equal to 2 characters'],
   },
@@ -120,6 +144,20 @@ userSchema.pre('save', async function (this: IUser, next) {
   if (!this.isModified('password')) return next();
   this.password = await bcrypt.hash(this.password, 12);
   next();
+});
+
+userSchema.pre('findOneAndUpdate', async function (next) {
+  try {
+    const query = this as IUserQuery;
+    if (query._update.password) {
+      const salt = await bcrypt.genSalt(12);
+      const hashedPassword = await bcrypt.hash(query._update.password, salt);
+      query._update.password = hashedPassword;
+    }
+    next();
+  } catch (err) {
+    next(err as CallbackError);
+  }
 });
 
 userSchema.methods.correctPassword = async function (

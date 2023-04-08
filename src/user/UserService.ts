@@ -14,8 +14,12 @@ export class UserService {
       const response = await axios.get(`https://viacep.com.br/ws/${cep}/json`);
       const viaCepData = response.data;
       return viaCepData;
-    } catch (error) {
-      console.error(error);
+    } catch (err: unknown) {
+      if (errorMessage(err)) {
+        throw new Error(`Failed to get cep data: ${err.message}`);
+      } else {
+        throw new Error(`Failed to get cep data: ${err}`);
+      }
     }
   }
 
@@ -36,8 +40,12 @@ export class UserService {
       user.locality = cepData.localidade;
       user.uf = cepData.uf;
       this.checkCepData(user);
-    } catch (err) {
-      return err;
+    } catch (err: unknown) {
+      if (errorMessage(err)) {
+        throw new Error(`Failed to add cep data: ${err.message}`);
+      } else {
+        throw new Error(`Failed to add cep data: ${err}`);
+      }
     }
   }
 

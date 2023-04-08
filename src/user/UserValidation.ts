@@ -5,10 +5,9 @@ const cpfSchema = Joi.string()
   .trim()
   .custom((value, helpers) => {
     if (!validateCPF(value)) {
-      // Chama a função validateCPF para validar o CPF.
-      return helpers.error('invalid.cpf'); // Se o CPF for inválido, retorna uma mensagem de erro.
+      return helpers.error('invalid.cpf');
     }
-    return value; // Se o CPF for válido, retorna o valor original.
+    return value;
   })
   .messages({
     'invalid.cpf': `Invalid CPF`,

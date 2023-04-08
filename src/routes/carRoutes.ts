@@ -12,7 +12,7 @@ const carController = new CarController(carService);
 const carRoutes: Router = express.Router();
 
 carRoutes.post('/', protect, carController.createCar);
-carRoutes.get('/', protect, carController.findAllCars);
+carRoutes.get('/', carController.findAllCars);
 carRoutes.get('/:id', protect, carController.findCarById);
 carRoutes.delete('/:id', protect, carController.deleteCarById);
 carRoutes.put('/:id', protect, carController.updateCarById);

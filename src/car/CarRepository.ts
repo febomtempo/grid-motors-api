@@ -1,7 +1,7 @@
 import { Model } from 'mongoose';
 import { ICar } from './CarModel';
 
-export class carRepository {
+export class CarRepository {
   constructor(private readonly carModel: Model<ICar>) {
     this.carModel = carModel;
   }

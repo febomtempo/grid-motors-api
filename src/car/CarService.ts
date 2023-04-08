@@ -8,7 +8,7 @@ export class CarService {
     this.carRepository = carRepository;
   }
 
-  async createcar(car: ICar): Promise<ICar | null> {
+  async createCar(car: ICar): Promise<ICar | null> {
     try {
       const newCar = await this.carRepository.createCar(car);
       return newCar;

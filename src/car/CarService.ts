@@ -1,5 +1,5 @@
 import { ICar } from './CarModel';
-import { CarRepository } from './CarRepository';
+import { CarRepository, ICarQueryParams } from './CarRepository';
 import { errorMessage } from '../utils/ErrorHandling';
 import { isObjectIdOrHexString } from 'mongoose';
 
@@ -21,9 +21,18 @@ export class CarService {
     }
   }
 
-  async findAllCars(): Promise<ICar[]> {
+  async countDocuments(params: ICarQueryParams): Promise<number> {
+    const totalDocs = await this.carRepository.countDocuments(params);
+    return totalDocs;
+  }
+
+  async findAllCars(
+    page: number,
+    limit: number,
+    params: ICarQueryParams
+  ): Promise<ICar[]> {
     try {
-      const car = await this.carRepository.findAllCars();
+      const car = await this.carRepository.findAllCars(page, limit, params);
       return car;
     } catch (err: unknown) {
       if (errorMessage(err)) {

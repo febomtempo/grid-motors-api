@@ -2,6 +2,7 @@ import { ICar } from './CarModel';
 import { Request, Response } from 'express';
 import { CarService } from './CarService';
 import { errorHandler } from '../utils/ErrorHandling';
+import { ICarQueryParams } from './CarRepository';
 
 export class CarController {
   constructor(private readonly carService: CarService) {
@@ -20,8 +21,24 @@ export class CarController {
 
   findAllCars = async (req: Request, res: Response): Promise<Response> => {
     try {
-      const car = await this.carService.findAllCars();
-      return res.status(200).json(car);
+      const page = Number(req.query.page) || 1;
+      const limit = Number(req.query.limit) || 100;
+      const params: ICarQueryParams = req.query;
+      const totalDocs = await this.carService.countDocuments(params);
+      const car = await this.carService.findAllCars(page, limit, params);
+      if (car.length === 0) {
+        return res.status(404).json({
+          status: 'fail',
+          message: 'No cars found',
+        });
+      }
+      return res.status(200).json({
+        cars: car,
+        total: totalDocs,
+        limit: limit,
+        offset: page,
+        offsets: Math.ceil(totalDocs / limit),
+      });
     } catch (err: unknown) {
       return errorHandler(err, res);
     }

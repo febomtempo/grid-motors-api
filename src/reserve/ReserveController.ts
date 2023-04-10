@@ -3,6 +3,7 @@ import { Request, Response } from 'express';
 import { ReqWithUser } from '../auth/AuthController';
 import { ReserveService } from './ReserveService';
 import { errorHandler } from '../utils/ErrorHandling';
+import { IReserveQueryParams } from './ReserveRepository';
 
 export class ReserveController {
   constructor(private readonly reserveService: ReserveService) {
@@ -34,8 +35,13 @@ export class ReserveController {
     try {
       const page = Number(req.query.page) || 1;
       const limit = Number(req.query.limit) || 100;
-      const totalDocs = await this.reserveService.countDocuments();
-      const reserve = await this.reserveService.findAllReserves(page, limit);
+      const params: IReserveQueryParams = req.query;
+      const totalDocs = await this.reserveService.countDocuments(params);
+      const reserve = await this.reserveService.findAllReserves(
+        page,
+        limit,
+        params
+      );
       return res.status(200).json({
         reserves: reserve,
         total: totalDocs,

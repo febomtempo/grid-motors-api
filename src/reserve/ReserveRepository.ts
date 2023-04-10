@@ -1,6 +1,13 @@
 import { Model } from 'mongoose';
 import { IReserve } from './ReserveModel';
 
+export interface IReserveQueryParams {
+  start_date?: Date;
+  end_date?: Date;
+  id_user?: string;
+  id_car?: string;
+}
+
 export class ReserveRepository {
   constructor(private readonly reserveModel: Model<IReserve>) {
     this.reserveModel = reserveModel;
@@ -11,16 +18,19 @@ export class ReserveRepository {
     return newReserve;
   }
 
-  async countDocuments(): Promise<number> {
-    const totalDocs = await this.reserveModel.countDocuments();
+  async countDocuments(params: IReserveQueryParams): Promise<number> {
+    const totalDocs = await this.reserveModel.countDocuments(params);
     return totalDocs;
   }
 
-  async findAllReserves(page: number, limit: number): Promise<IReserve[]> {
+  async findAllReserves(
+    page: number,
+    limit: number,
+    params: IReserveQueryParams
+  ): Promise<IReserve[]> {
     const skip = (page - 1) * limit;
-
     const reserve = await this.reserveModel
-      .find()
+      .find(params)
       .skip(skip)
       .limit(limit)
       .select('-__v');

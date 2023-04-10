@@ -1,5 +1,5 @@
 import { IReserve } from './ReserveModel';
-import { ReserveRepository } from './ReserveRepository';
+import { IReserveQueryParams, ReserveRepository } from './ReserveRepository';
 import { CarRepository } from '../car/CarRepository';
 import { errorMessage } from '../utils/ErrorHandling';
 import { isObjectIdOrHexString } from 'mongoose';
@@ -49,14 +49,22 @@ export class ReserveService {
     }
   }
 
-  async countDocuments(): Promise<number> {
-    const totalDocs = await this.reserveRepository.countDocuments();
+  async countDocuments(params: IReserveQueryParams): Promise<number> {
+    const totalDocs = await this.reserveRepository.countDocuments(params);
     return totalDocs;
   }
 
-  async findAllReserves(page: number, limit: number): Promise<IReserve[]> {
+  async findAllReserves(
+    page: number,
+    limit: number,
+    params: IReserveQueryParams
+  ): Promise<IReserve[]> {
     try {
-      const reserve = await this.reserveRepository.findAllReserves(page, limit);
+      const reserve = await this.reserveRepository.findAllReserves(
+        page,
+        limit,
+        params
+      );
       return reserve;
     } catch (err: unknown) {
       if (errorMessage(err)) {

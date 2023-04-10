@@ -134,15 +134,6 @@
             }
           },
           {
-            "name": "password",
-            "in": "query",
-            "description": "The password of the user",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
             "name": "cep",
             "in": "query",
             "description": "The CEP of the user address",

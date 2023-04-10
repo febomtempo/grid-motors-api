@@ -11,8 +11,19 @@ export class ReserveRepository {
     return newReserve;
   }
 
-  async findAllReserves(): Promise<IReserve[]> {
-    const reserve = await this.reserveModel.find().select('-__v');
+  async countDocuments(): Promise<number> {
+    const totalDocs = await this.reserveModel.countDocuments();
+    return totalDocs;
+  }
+
+  async findAllReserves(page: number, limit: number): Promise<IReserve[]> {
+    const skip = (page - 1) * limit;
+
+    const reserve = await this.reserveModel
+      .find()
+      .skip(skip)
+      .limit(limit)
+      .select('-__v');
     return reserve;
   }
 

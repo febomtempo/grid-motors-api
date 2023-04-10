@@ -49,9 +49,14 @@ export class ReserveService {
     }
   }
 
-  async findAllReserves(): Promise<IReserve[]> {
+  async countDocuments(): Promise<number> {
+    const totalDocs = await this.reserveRepository.countDocuments();
+    return totalDocs;
+  }
+
+  async findAllReserves(page: number, limit: number): Promise<IReserve[]> {
     try {
-      const reserve = await this.reserveRepository.findAllReserves();
+      const reserve = await this.reserveRepository.findAllReserves(page, limit);
       return reserve;
     } catch (err: unknown) {
       if (errorMessage(err)) {

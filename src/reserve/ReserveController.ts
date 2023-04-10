@@ -32,8 +32,17 @@ export class ReserveController {
 
   findAllReserves = async (req: Request, res: Response): Promise<Response> => {
     try {
-      const reserve = await this.reserveService.findAllReserves();
-      return res.status(200).json(reserve);
+      const page = Number(req.query.page) || 1;
+      const limit = Number(req.query.limit) || 100;
+      const totalDocs = await this.reserveService.countDocuments();
+      const reserve = await this.reserveService.findAllReserves(page, limit);
+      return res.status(200).json({
+        reserves: reserve,
+        total: totalDocs,
+        limit: limit,
+        offset: page,
+        offsets: Math.ceil(totalDocs / limit),
+      });
     } catch (err: unknown) {
       return errorHandler(err, res);
     }

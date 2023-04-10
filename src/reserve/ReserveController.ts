@@ -43,7 +43,7 @@ export class ReserveController {
         params
       );
       if (reserve.length === 0) {
-        return res.status(400).json({
+        return res.status(404).json({
           status: 'fail',
           message: 'No reserves found',
         });

@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { IUser } from './UserModel';
-import { UserRepository } from './UserRepository';
+import { IUserQueryParams, UserRepository } from './UserRepository';
 import { errorMessage } from '../utils/ErrorHandling';
 import { isObjectIdOrHexString } from 'mongoose';
 
@@ -63,9 +63,18 @@ export class UserService {
     }
   }
 
-  async findAllUsers(): Promise<IUser[]> {
+  async countDocuments(params: IUserQueryParams): Promise<number> {
+    const totalDocs = await this.userRepository.countDocuments(params);
+    return totalDocs;
+  }
+
+  async findAllUsers(
+    page: number,
+    limit: number,
+    params: IUserQueryParams
+  ): Promise<IUser[]> {
     try {
-      const user = await this.userRepository.findAllUsers();
+      const user = await this.userRepository.findAllUsers(page, limit, params);
       return user;
     } catch (err: unknown) {
       if (errorMessage(err)) {

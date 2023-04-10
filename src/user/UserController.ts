@@ -2,6 +2,7 @@ import { IUser } from './UserModel';
 import { Request, Response } from 'express';
 import { UserService } from './UserService';
 import { errorHandler } from '../utils/ErrorHandling';
+import { IUserQueryParams } from './UserRepository';
 
 export class UserController {
   constructor(private readonly userService: UserService) {
@@ -20,8 +21,24 @@ export class UserController {
 
   findAllUsers = async (req: Request, res: Response): Promise<Response> => {
     try {
-      const user = await this.userService.findAllUsers();
-      return res.status(200).json(user);
+      const page = Number(req.query.page) || 1;
+      const limit = Number(req.query.limit) || 100;
+      const params: IUserQueryParams = req.query;
+      const totalDocs = await this.userService.countDocuments(params);
+      const user = await this.userService.findAllUsers(page, limit, params);
+      if (user.length === 0) {
+        return res.status(404).json({
+          status: 'fail',
+          message: 'No users found',
+        });
+      }
+      return res.status(200).json({
+        users: user,
+        total: totalDocs,
+        limit: limit,
+        offset: page,
+        offsets: Math.ceil(totalDocs / limit),
+      });
     } catch (err: unknown) {
       return errorHandler(err, res);
     }

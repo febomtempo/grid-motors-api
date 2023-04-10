@@ -1,6 +1,21 @@
 import { Model } from 'mongoose';
 import { IUser } from './UserModel';
 
+export interface IUserQueryParams {
+  name?: string;
+  cpf?: string;
+  birth?: Date;
+  email?: string;
+  password?: string;
+  cep?: string;
+  qualified?: string;
+  patio?: string | null;
+  complement?: string | null;
+  neighborhood?: string | null;
+  locality?: string;
+  uf?: string;
+}
+
 export class UserRepository {
   constructor(private readonly userModel: Model<IUser>) {
     this.userModel = userModel;
@@ -12,8 +27,23 @@ export class UserRepository {
     return newUser;
   }
 
-  async findAllUsers(): Promise<IUser[]> {
-    const user = await this.userModel.find().select('-__v');
+  async countDocuments(params: IUserQueryParams): Promise<number> {
+    const totalDocs = await this.userModel.countDocuments(params);
+    return totalDocs;
+  }
+
+  async findAllUsers(
+    page: number,
+    limit: number,
+    params: IUserQueryParams
+  ): Promise<IUser[]> {
+    const skip = (page - 1) * limit;
+    const user = await this.userModel
+      .find()
+      .find(params)
+      .skip(skip)
+      .limit(limit)
+      .select('-__v');
     return user;
   }
 

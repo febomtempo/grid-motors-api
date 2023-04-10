@@ -1,4 +1,4 @@
-import { IReserve } from './ReserveModel';
+import Reserve, { IReserve } from './ReserveModel';
 import { IReserveQueryParams, ReserveRepository } from './ReserveRepository';
 import { CarRepository } from '../car/CarRepository';
 import { errorMessage } from '../utils/ErrorHandling';
@@ -35,6 +35,30 @@ export class ReserveService {
         throw new Error('User not qualified for a reservation');
       }
       const days = daysCounter(start_date, end_date);
+
+      const isCarAlreadyReserved = await Reserve.findOne({
+        id_car: id_car,
+        start_date: { $lt: end_date },
+        end_date: { $gt: start_date },
+      });
+
+      if (isCarAlreadyReserved) {
+        throw new Error(
+          'This car has already a reserve between Start Date and End Date'
+        );
+      }
+
+      const isUserAlreadyReserved = await Reserve.findOne({
+        id_user: id_user,
+        start_date: { $lt: end_date },
+        end_date: { $gt: start_date },
+      });
+      if (isUserAlreadyReserved) {
+        throw new Error(
+          'This user has already a reserve between Start Date and End Date'
+        );
+      }
+
       const carValue = car.value_per_day;
       const final_value = days * carValue;
       reserve.final_value = final_value;

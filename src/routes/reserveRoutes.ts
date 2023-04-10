@@ -25,7 +25,7 @@ reserveRoutes.post(
   validate(reserveSchema),
   reserveController.createReserve
 );
-reserveRoutes.get('/', reserveController.findAllReserves);
+reserveRoutes.get('/', protect, reserveController.findAllReserves);
 reserveRoutes.get('/:id', protect, reserveController.findReserveById);
 reserveRoutes.delete('/:id', protect, reserveController.deleteReserveById);
 reserveRoutes.put(

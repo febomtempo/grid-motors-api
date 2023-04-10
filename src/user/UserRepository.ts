@@ -6,7 +6,6 @@ export interface IUserQueryParams {
   cpf?: string;
   birth?: Date;
   email?: string;
-  password?: string;
   cep?: string;
   qualified?: string;
   patio?: string | null;

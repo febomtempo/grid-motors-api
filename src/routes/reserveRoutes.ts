@@ -6,6 +6,11 @@ import { ReserveRepository } from '../reserve/ReserveRepository';
 import { protect } from '../auth/AuthController';
 import { CarRepository } from '../car/CarRepository';
 import Car from '../car/CarModel';
+import { validate } from '../validation/Validator';
+import {
+  reserveSchema,
+  reserveUpdateSchema,
+} from '../reserve/ReserveValidation';
 
 const carRepository = new CarRepository(Car);
 const reserveRepository = new ReserveRepository(Reserve);
@@ -14,10 +19,20 @@ const reserveController = new ReserveController(reserveService);
 
 const reserveRoutes: Router = express.Router();
 
-reserveRoutes.post('/', protect, reserveController.createReserve);
+reserveRoutes.post(
+  '/',
+  protect,
+  validate(reserveSchema),
+  reserveController.createReserve
+);
 reserveRoutes.get('/', reserveController.findAllReserves);
 reserveRoutes.get('/:id', protect, reserveController.findReserveById);
 reserveRoutes.delete('/:id', protect, reserveController.deleteReserveById);
-reserveRoutes.put('/:id', protect, reserveController.updateReserveById);
+reserveRoutes.put(
+  '/:id',
+  protect,
+  validate(reserveUpdateSchema),
+  reserveController.updateReserveById
+);
 
 export default reserveRoutes;

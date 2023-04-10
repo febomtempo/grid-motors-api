@@ -20,6 +20,7 @@ export class ReserveController {
       const newReserve = await this.reserveService.createReserve(
         reserve,
         id_car.toString(),
+        req.user?.id,
         start_date.toString(),
         end_date.toString()
       );

@@ -4,6 +4,7 @@ import { CarRepository } from '../car/CarRepository';
 import { errorMessage } from '../utils/ErrorHandling';
 import { isObjectIdOrHexString } from 'mongoose';
 import { daysCounter } from '../utils/DaysCounter';
+import User from '../user/UserModel';
 
 export class ReserveService {
   constructor(
@@ -17,6 +18,7 @@ export class ReserveService {
   async createReserve(
     reserve: IReserve,
     id_car: string,
+    id_user: string,
     start_date: string,
     end_date: string
   ): Promise<IReserve | null> {
@@ -28,7 +30,11 @@ export class ReserveService {
       if (!car) {
         throw new Error(`Car ID not found`);
       }
-      const days = daysCounter(end_date, start_date);
+      const user = await User.findById(id_user);
+      if (user?.qualified !== 'sim') {
+        throw new Error('User not qualified for a reservation');
+      }
+      const days = daysCounter(start_date, end_date);
       const carValue = car.value_per_day;
       const final_value = days * carValue;
       reserve.final_value = final_value;
